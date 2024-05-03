@@ -13,6 +13,7 @@ import ninja_syntax
 import splat
 import splat.scripts.split as split
 from   splat.segtypes.linker_entry import LinkerEntry
+from security import safe_command
 
 ROOT = Path(__file__).parent
 TOOLS_DIR = ROOT / "tools"
@@ -35,8 +36,7 @@ COMPILE_CMD = (
 WIBO_VER = "0.6.11"
 
 def exec_shell(command: List[str]) -> str:
-    ret = subprocess.run(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    ret = safe_command.run(subprocess.run, command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
     )
     return ret.stdout
 
