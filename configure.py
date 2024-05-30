@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Set, Union
+from typing import Optional, Dict, List, Set, Union
 
 import ninja_syntax
 
@@ -71,9 +71,11 @@ def build_stuff(linker_entries: List[LinkerEntry]):
         object_paths: Union[Path, List[Path]],
         src_paths: List[Path],
         task: str,
-        variables: Dict[str, str] = {},
-        implicit_outputs: List[str] = [],
+        variables: Optional[Dict[str, str]] = None,
+        implicit_outputs: Optional[List[str]] = None,
     ):
+        variables = {} if variables is None else variables
+        implicit_outputs = [] if implicit_outputs is None else implicit_outputs
         if not isinstance(object_paths, list):
             object_paths = [object_paths]
 
