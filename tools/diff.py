@@ -18,6 +18,7 @@ from typing import (
     Type,
     Union,
 )
+from security import safe_command
 
 
 def fail(msg: str) -> NoReturn:
@@ -1070,8 +1071,7 @@ def run_make(target: str, project: ProjectSettings) -> None:
 def run_make_capture_output(
     target: str, project: ProjectSettings
 ) -> "subprocess.CompletedProcess[bytes]":
-    return subprocess.run(
-        project.build_command + [target],
+    return safe_command.run(subprocess.run, project.build_command + [target],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
@@ -1113,8 +1113,7 @@ def maybe_get_objdump_source_flags(config: Config) -> List[str]:
 def run_objdump(cmd: ObjdumpCommand, config: Config, project: ProjectSettings) -> str:
     flags, target, restrict = cmd
     try:
-        out = subprocess.run(
-            [project.objdump_executable]
+        out = safe_command.run(subprocess.run, [project.objdump_executable]
             + config.arch.arch_flags
             + project.objdump_flags
             + flags
@@ -3559,10 +3558,9 @@ class Display:
         # write call doesn't block. ('tail' has to buffer all its input before
         # it starts writing.) This also means we don't have to deal with pipe
         # closure errors.
-        buffer_proc = subprocess.Popen(
-            BUFFER_CMD, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+        buffer_proc = safe_command.run(subprocess.Popen, BUFFER_CMD, stdin=subprocess.PIPE, stdout=subprocess.PIPE
         )
-        less_proc = subprocess.Popen(LESS_CMD, stdin=buffer_proc.stdout)
+        less_proc = safe_command.run(subprocess.Popen, LESS_CMD, stdin=buffer_proc.stdout)
         assert buffer_proc.stdin
         assert buffer_proc.stdout
         buffer_proc.stdin.write(output.encode())
